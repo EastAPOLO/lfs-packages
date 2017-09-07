@@ -29,11 +29,6 @@ lfs_me_build() {
         make
 }
 
-lfs_me_check() {
-        cd "${build_dir}/${pkgname}-${pkgver}"
-        make check
-}
-
 lfs_me_install() {
         cd "${build_dir}/${pkgname}-${pkgver}"
         make DESTDIR="$fakeroot_dir" install

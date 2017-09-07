@@ -1,0 +1,62 @@
+pkgbuild_version=5
+pkgname=Python
+pkgver=3.6.2
+cores=$(($(nproc)+1))
+
+overwrite=(
+	'/usr/bin/python'
+	'/usr/bin/2to3'
+	'/usr/bin/pip'
+)
+dependencies=(
+	"!${pkgname}>=3"
+	'libffi'
+)
+sources=(
+	"http://www.python.org/ftp/python/${pkgver}/${pkgname}-${pkgver}.tar.xz"
+	"ftp://ftp.osuosl.org/pub/blfs/conglomeration/${pkgname}/${pkgname/P/p}-${pkgver}-docs-html.tar.bz2"
+)
+sha1sums=(
+	'4f92a045de9231b93dfbed50c66bb12cf03ac59a'
+	'1c4e6b97bffdaad00d06a8e79752d8faf03e9a77'
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	CXX="/usr/bin/g++"              \
+	./configure --prefix=/usr       \
+	            --enable-shared     \
+	            --with-system-expat \
+		    --with-system-ffi   \
+		    --with-ensurepip=yes
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_build() {
+        cd "${build_dir}/${pkgname}-${pkgver}"
+        make -j$cores
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make install &&
+
+	chmod -v 755 /usr/lib/libpython3.6m.so &&
+	chmod -v 755 /usr/lib/libpython3.so &&
+
+	install -v -dm755 "${fakeroot_dir}/usr/share/doc/${pkgname/P/p}-${pkgver}/html" &&
+	tar --strip-components=1 \
+    	    --no-same-owner \
+    	    --no-same-permissions \
+    	    -C "${fakeroot_dir}/usr/share/doc/${pkgname/P/p}-${pkgver}/html" \
+    	    -xvf "${sources_dir}/${pkgname/P/p}-${pkgver}-docs-html.tar.bz2" &&
+	mkdir -pv "${fakeroot_dir}/etc/profile.d/" &&
+	echo "export PYTHONDOCS=/usr/share/doc/${pkgname/P/p}-${pkgver}/html" > "${fakeroot_dir}/etc/profile.d/python3.sh"
+
+}
