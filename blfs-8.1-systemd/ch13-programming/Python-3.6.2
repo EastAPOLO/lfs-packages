@@ -45,7 +45,7 @@ lfs_me_build() {
 
 lfs_me_install() {
 	cd "${build_dir}/${pkgname}-${pkgver}"
-	make install &&
+	make DESTDIR="$fakeroot_dir" install &&
 
 	chmod -v 755 /usr/lib/libpython3.6m.so &&
 	chmod -v 755 /usr/lib/libpython3.so &&

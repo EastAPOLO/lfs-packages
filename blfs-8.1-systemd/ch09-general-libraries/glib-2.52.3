@@ -6,14 +6,14 @@ cores=$(($(nproc)+1))
 dependencies=(
 	"!$pkgname"
 	'libffi'
-	'Python<=3'
+	'Python>=3'
 	'pcre'
 )
 sources=(
-	"http://ftp.gnome.org/pub/gnome/sources/${pkgname}/2.53/${pkgname}-${pkgver}.tar.xz"
+	"http://ftp.gnome.org/pub/gnome/sources/${pkgname}/2.52/${pkgname}-${pkgver}.tar.xz"
 )
 sha1sums=(
-	'6504d149e25a31985e6e461d65b52586596829f8'
+	'9e31cce788d018894e6e0b1350263bc11b41cff8'
 )
 
 lfs_me_prepare() {
@@ -29,13 +29,14 @@ lfs_me_build() {
         make -j$cores
 }
 
+lfs_me_check() {
+	return
+}
+
 lfs_me_install() {
         cd "${build_dir}/${pkgname}-${pkgver}"
         make DESTDIR="$fakeroot_dir" install
 }
 
 
-lfs_me_check() {
-	return
-}
 

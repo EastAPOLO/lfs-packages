@@ -25,7 +25,16 @@ lfs_me_prepare() {
 	-i libffi.pc.in        &&
 
 	./configure --prefix=/usr --disable-static &&
-	make -j$cores
+
+}
+
+lfs_me_build() {
+        cd "${build_dir}/${pkgname}-${pkgver}"
+        make -j$cores
+}
+
+lfs_me_check() {
+        return
 }
 
 lfs_me_install() {
