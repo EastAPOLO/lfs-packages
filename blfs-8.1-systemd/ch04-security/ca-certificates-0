@@ -1,0 +1,33 @@
+pkgbuild_version=5
+pkgname=ca-certificates
+pkgver=0
+
+dependencies=(
+    	"!$pkgname"
+	'openssl'
+	'perl'
+	'wget'
+)
+
+lfs_me_prepare() {
+	cd "${build_dir}"
+	wget http://anduin.linuxfromscratch.org/BLFS/other/make-ca.sh-20170514
+	wget http://anduin.linuxfromscratch.org/BLFS/other/certdata.txt	
+}
+
+lfs_me_build() {
+	return
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	install -vdm755 "${fakeroot_dir}/etc/ssl/local" &&
+	wget http://www.cacert.org/certs/root.crt &&
+	openssl x509 -in root.crt -text -fingerprint -setalias "CAcert Class 1 root" \
+        -addtrust serverAuth -addtrust emailProtection -addtrust codeSigning \
+        > /etc/ssl/local/CAcert_Class_1_root.pem &&
+	install -vm755 make-ca.sh-20170514 "${fakeroot_dir}/usr/sbin/make-ca.sh"
+}

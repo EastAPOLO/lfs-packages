@@ -1,0 +1,45 @@
+pkgbuild_version=5
+pkgname=cmake
+pkgver=3.9.1
+
+dependencies=(
+	"!$pkgname"
+	'curl'
+	'libarchive'
+)
+sources=(
+	"http://www.cmake.org/files/v3.0/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+	'0f3bb90efb3387be1dae7c7c3155751bd46ff2a8'
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	sed -i '/CMAKE_USE_LIBUV 1/s/1/0/' CMakeLists.txt     &&
+	sed -i '/"lib64"/s/64//' Modules/GNUInstallDirs.cmake &&
+
+	./bootstrap --prefix=/usr        \
+            	    --system-libs        \
+                    --mandir=/share/man  \
+                    --no-system-jsoncpp  \
+                    --no-system-librhash \
+                    --docdir=/share/doc/cmake-3.9.1
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}${pkgver}"
+	make
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
