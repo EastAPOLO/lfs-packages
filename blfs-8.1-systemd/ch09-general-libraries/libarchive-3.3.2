@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=libarchive
+pkgver=3.3.2
+cores=$(($(nproc)+1))
+
+overwrite=(
+	'/usr/bin/bsdcat'
+	'/usr/bin/bsdcpio'
+	'/usr/bin/bsdtar'
+)
+
+dependencies=(
+	"!$pkgname"
+)
+sources=(
+	"http://www.libarchive.org/downloads/${pkgname}-${pkgver}.tar.gz"
+)
+sha1sums=(
+	'580064227105e30322caa6c67b59e8c8e6060027'
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.gz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	
+	./configure --prefix=/usr --disable-static
+}
+
+lfs_me_build() {
+        cd "${build_dir}/${pkgname}-${pkgver}"
+        make -j$cores
+}
+
+lfs_me_check() {
+        return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+

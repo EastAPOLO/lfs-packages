@@ -1,0 +1,59 @@
+pkgbuild_version=5
+pkgname=curl
+pkgver=7.55.1
+cores=$(($(nproc)+1))
+
+overwrite=(
+	'/usr/bin/curl'
+	'/usr/bin/curl-config'
+)
+
+dependencies=(
+	"!$pkgname"
+	'openssl'
+)
+sources=(
+	"https://curl.haxx.se/download/${pkgname}-${pkgver}.tar.xz"
+)
+sha1sums=(
+	'2fc638445ba70cf47882f9f6ace5ebff29fdd191'
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	
+	./configure --prefix=/usr                           \
+            	    --disable-static                        \
+                    --enable-threaded-resolver              \
+                    --with-ca-path=/etc/ssl/certs
+}
+
+lfs_me_build() {
+        cd "${build_dir}/${pkgname}-${pkgver}"
+        make -j$cores
+}
+
+lfs_me_check() {
+        return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}
+
+lfs_me_postinstall() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	rm -rf docs/examples/.deps &&
+
+	find docs \( -name Makefile\* \
+                  -o -name \*.1       \
+                  -o -name \*.3 \)    \
+                  -exec rm {} \;      &&
+	install -v -d -m755 /usr/share/doc/curl-7.55.1 &&
+	cp -v -R docs/*     /usr/share/doc/curl-7.55.1
+}
+
