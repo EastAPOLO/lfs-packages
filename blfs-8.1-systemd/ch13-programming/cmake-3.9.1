@@ -1,6 +1,15 @@
 pkgbuild_version=5
 pkgname=cmake
 pkgver=3.9.1
+cores=$(($(nproc)+1))
+
+overwrite=(
+	'/usr/bin/ccmake'
+	'/usr/bin/cmake'
+	'/usr/bin/cmake-gui'
+	'/usr/bin/cpack'
+	'/usr/bin/ctest'
+)
 
 dependencies=(
 	"!$pkgname"
@@ -8,7 +17,7 @@ dependencies=(
 	'libarchive'
 )
 sources=(
-	"http://www.cmake.org/files/v3.0/${pkgname}-${pkgver}.tar.gz"
+	"http://www.cmake.org/files/v3.9/${pkgname}-${pkgver}.tar.gz"
 )
 sha1sums=(
 	'0f3bb90efb3387be1dae7c7c3155751bd46ff2a8'
@@ -31,8 +40,8 @@ lfs_me_prepare() {
 }
 
 lfs_me_build() {
-	cd "${build_dir}/${pkgname}${pkgver}"
-	make
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -j$cores
 }
 
 lfs_me_check() {
@@ -40,6 +49,6 @@ lfs_me_check() {
 }
 
 lfs_me_install() {
-	cd "${build_dir}/${pkgname}${pkgver}"
+	cd "${build_dir}/${pkgname}-${pkgver}"
 	make DESTDIR="$fakeroot_dir" install
 }
