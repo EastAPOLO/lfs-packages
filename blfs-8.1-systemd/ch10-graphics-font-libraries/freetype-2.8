@@ -1,6 +1,7 @@
 pkgbuild_version=5
 pkgname=freetype
 pkgver=2.8
+cores=$(($(nproc)+1))
 
 dependencies=(
 	'which'
@@ -12,8 +13,8 @@ sources=(
 	"http://downloads.sourceforge.net/${pkgname}/${pkgname}-doc-${pkgver}.tar.bz2"
 )
 sha1sums=(
-	'd3c26cc17ec7fe6c36f4efc02ef92ab6aa3f4b46'
-	'81d38137f2d16260391aac7a65cd44e3ed0dc253'
+	'42c6b1f733fe13a3eba135f5025b22cb68450f91'
+        '5b221ee14fe674cd5f6db0193d55360bc0bd3655'	
 )
 
 lfs_me_prepare() {
@@ -22,19 +23,22 @@ lfs_me_prepare() {
 	cd "${build_dir}/${pkgname}-${pkgver}"
 
 	tar -xf "${sources_dir}/${pkgname}-doc-${pkgver}.tar.bz2" --strip-components=2 -C docs &&
+	
+	sed -ri "s:.*(AUX_MODULES.*valid):\1:" modules.cfg &&
 
-	sed -i  -e "/AUX.*.gxvalid/s@^# @@" \
-	        -e "/AUX.*.otvalid/s@^# @@" \
-			        modules.cfg                        &&
-
-	sed -ri -e 's:.*(#.*SUBPIXEL.*) .*:\1:' \
-		include/config/ftoption.h          &&
+	sed -r "s:.*(#.*SUBPIXEL_RENDERING) .*:\1:" \
+    	-i include/freetype/config/ftoption.h &&
 
 	./configure --prefix=/usr --disable-static
 }
 
 lfs_me_check() {
 	return
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -j$cores
 }
 
 lfs_me_install() {
