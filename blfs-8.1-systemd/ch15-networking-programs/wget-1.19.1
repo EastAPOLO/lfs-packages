@@ -3,11 +3,6 @@ pkgname=wget
 pkgver=1.19.1
 cores=$(($(nproc)+1))
 
-overwrite=(
-	'/usr/bin/wget'
-	'/usr/share/info/dir'
-	'/etc/wgetrc'
-)
 sources=(
 	"https://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.xz"
 )

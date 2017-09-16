@@ -3,9 +3,6 @@ pkgname=openssl
 pkgver=1.1.0f
 cores=$(($(nproc)+1))
 
-overwrite=(
-	'/usr/bin/openssl'
-)
 sources=(
 	"https://openssl.org/source/${pkgname}-${pkgver}.tar.gz"
 )

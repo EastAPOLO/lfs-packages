@@ -1,0 +1,41 @@
+pkgbuild_version=5
+pkgname=libpng
+pkgver=1.6.31 
+cores=$(($(nproc)+1))
+
+sources=(
+	"http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.xz"
+	"https://downloads.sourceforge.net/apng/libpng-1.6.31-apng.patch.gz"
+)
+sha1sums=(
+	'de695064363df331734466981ef7f6546ef516bf'
+	'07bb6e94d3d502aace4dd63f5b5be4ad42317fe4'
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	gzip -cd ../libpng-1.6.31-apng.patch.gz | patch -p0
+	
+	LIBS=-lpthread ./configure --prefix=/usr --disable-static	
+}
+
+lfs_me_build() {
+        cd "${build_dir}/${pkgname}-${pkgver}"
+        make -j$cores
+}
+
+lfs_me_check() {
+        return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+	
+	mkdir -v /usr/share/doc/libpng-1.6.31 &&
+        cp -v README libpng-manual.txt /usr/share/doc/libpng-1.6.31
+}
+

@@ -3,11 +3,6 @@ pkgname=curl
 pkgver=7.55.1
 cores=$(($(nproc)+1))
 
-overwrite=(
-	'/usr/bin/curl'
-	'/usr/bin/curl-config'
-)
-
 dependencies=(
 	'openssl'
 )
