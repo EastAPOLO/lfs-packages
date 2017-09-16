@@ -3,9 +3,6 @@ pkgname=pcre
 pkgver=8.41
 cores=$(($(nproc)+1))
 
-dependencies=(
-	"!$pkgname"
-)
 sources=(
 	"http://downloads.sourceforge.net/${pkgname}/${pkgname}-${pkgver}.tar.bz2"
 )

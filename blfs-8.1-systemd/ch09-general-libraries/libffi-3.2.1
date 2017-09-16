@@ -3,9 +3,6 @@ pkgname=libffi
 pkgver=3.2.1
 cores=$(($(nproc)+1))
 
-dependencies=(
-	"!$pkgname"
-)
 sources=(
 	"ftp://sourceware.org/pub/${pkgname}/${pkgname}-${pkgver}.tar.gz"
 )

@@ -6,10 +6,6 @@ cores=$(($(nproc)+1))
 overwrite=(
 	'/usr/bin/openssl'
 )
-
-dependencies=(
-	"!$pkgname"
-)
 sources=(
 	"https://openssl.org/source/${pkgname}-${pkgver}.tar.gz"
 )
