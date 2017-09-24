@@ -1,0 +1,41 @@
+#!/bin/bash
+
+pkgbuild_version=5
+pkgname=xorg-build-environment
+pkgver=7
+cores=$(($(nproc)+1))
+
+sources=( )
+
+# Set xorg prefix for all packages relying on that
+export XORG_PREFIX=/usr
+
+lfs_me_prepare() {
+	cd ${build_dir}		
+}
+
+lfs_me_build() {
+	export XORG_CONFIG="--prefix=$XORG_PREFIX --sysconfdir=/etc \
+ 	--localstatedir=/var --disable-static"
+
+	cat > /etc/profile.d/xorg.sh << EOF
+	XORG_PREFIX="$XORG_PREFIX"
+	XORG_CONFIG="--prefix=\$XORG_PREFIX --sysconfdir=/etc --localstatedir=/var --disable-static"
+	export XORG_PREFIX XORG_CONFIG
+EOF
+	echo "The XORG_PREFIX value is: $XORG_PREFIX"
+	chmod 644 /etc/profile.d/xorg.sh
+	source /etc/profile
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	return
+}
+
+lfs_me_postremove() {
+	rm /etc/profile.d/xorg.sh
+}

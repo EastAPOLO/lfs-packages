@@ -1,0 +1,43 @@
+pkgbuild_version=5
+pkgname=xcb-proto
+pkgver=1.12
+cores=$(($(nproc)+1))
+
+dependencies=(
+	'xorg-build-environment'
+	'Python>=3'
+)
+sources=(
+	"http://xcb.freedesktop.org/dist/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+	'e93da374ecef9359370edc0160bcb8b2a2f7d9f6'
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	
+	wget http://www.linuxfromscratch.org/patches/blfs/8.1/xcb-proto-1.12-python3-1.patch
+	wget http://www.linuxfromscratch.org/patches/blfs/8.1/xcb-proto-1.12-schema-1.patch
+
+	patch -Np1 -i xcb-proto-1.12-schema-1.patch &&
+	patch -Np1 -i xcb-proto-1.12-python3-1.patch &&	
+
+	./configure $XORG_CONFIG
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_build() {
+        cd "${build_dir}/${pkgname}-${pkgver}"
+        make -j$cores
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install
+}

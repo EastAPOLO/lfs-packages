@@ -3,13 +3,6 @@ pkgname=cmake
 pkgver=3.9.1
 cores=$(($(nproc)+1))
 
-overwrite=(
-	'/usr/bin/ccmake'
-	'/usr/bin/cmake'
-	'/usr/bin/cmake-gui'
-	'/usr/bin/cpack'
-	'/usr/bin/ctest'
-)
 dependencies=(
 	'curl'
 	'libarchive'
