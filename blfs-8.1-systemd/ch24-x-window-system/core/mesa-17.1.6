@@ -1,0 +1,61 @@
+pkgbuild_version=5
+pkgname=mesa
+pkgver=17.1.6
+cores=$(($(nproc)+1))
+
+dependencies=(
+	'libdrm'
+	'Python>=3'
+	'xorg-libraries'
+	'libva'
+	'llvm'
+)
+sources=(
+	"ftp://ftp.freedesktop.org/pub/${pkgname}/${pkgname}-${pkgver}.tar.xz"
+	"http://www.linuxfromscratch.org/patches/blfs/8.1/${pkgname}-${pkgver}-add_xdemos-1.patch"
+)
+sha1sums=(
+	'2acc201e24ea67c5231074d6746a42a747228ed6'
+	'c8658df3959ead67cd9f4321e98fce0c03945024'
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname/Lib/}-${pkgver}"
+	
+	pip3 install Mako
+
+	patch -Np1 -i "${sources_dir}/${pkgname}-${pkgver}-add_xdemos-1.patch"
+
+	sed -i "/pthread_stubs_possible=/s/yes/no/" configure.ac &&
+
+	./autogen.sh CFLAGS='-O2' CXXFLAGS='-O2'       \
+		    --prefix=$XORG_PREFIX              \
+		    --sysconfdir=/etc                  \
+		    --enable-texture-float             \
+		    --enable-osmesa                    \
+		    --enable-xa                        \
+		    --enable-glx-tls                   \
+		    --with-platforms="drm,x11" \
+		    --with-gallium-drivers="i915,r600,nouveau,radeonsi,svga,swrast"
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname/Lib/}-${pkgver}"
+	make -j$cores &&
+	make -j$cores -C xdemos DEMOS_PREFIX=$XORG_PREFIX
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname/Lib/}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install &&
+
+	make DESTDIR="$fakeroot_dir" -C xdemos DEMOS_PREFIX=$XORG_PREFIX install &&
+	install -v -dm755 "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}" &&
+	cp -rfv docs/* "${fakeroot_dir}/usr/share/doc/${pkgname}-${pkgver}"
+}

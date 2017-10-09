@@ -1,0 +1,36 @@
+pkgbuild_version=5
+pkgname=xcb-util
+pkgver=0.4.0
+cores=$(($(nproc)+1))
+
+dependencies=(
+	'libxcb'
+)
+sources=(
+	"http://xcb.freedesktop.org/dist/${pkgname}-${pkgver}.tar.bz2"
+)
+sha1sums=(
+	'7f2e9b7efcc2c34eb1d6ae312c3d73b075832e46'
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.tar.bz2" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}"
+
+	./configure $XORG_CONFIG
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make -j$cores
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}"
+	make DESTDIR="$fakeroot_dir" install	
+}

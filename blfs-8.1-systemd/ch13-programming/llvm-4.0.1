@@ -1,0 +1,60 @@
+pkgbuild_version=5
+pkgname=llvm
+pkgver=4.0.1
+
+dependencies=(
+	'libffi'
+	'Python>=3'
+	'cmake'
+)
+sources=(
+	"http://llvm.org/releases/${pkgver}/${pkgname}-${pkgver}.src.tar.xz"
+	"http://llvm.org/releases/${pkgver}/cfe-${pkgver}.src.tar.xz"
+	"http://llvm.org/releases/${pkgver}/compiler-rt-${pkgver}.src.tar.xz"
+	"http://www.linuxfromscratch.org/patches/blfs/8.1/compiler-rt-4.0.1-glibc-2.26-1.patch"
+)
+sha1sums=(
+	'ddbf4dab7ab1a4bdce5ed1227bf721cbb3533a6e'
+	'd95d1f3a67b5448f25338bf657a7d379dbf2312f'
+	'002f2d6bbe140bb0db96b5fcf32dbedfe6dff440'
+	'dbfac20a9a3b1a4527fd46160ab33f1a2c859eaa'
+)
+
+lfs_me_prepare() {
+	tar -xf "${sources_dir}/${pkgname}-${pkgver}.src.tar.xz" -C "$build_dir"
+
+	cd "${build_dir}/${pkgname}-${pkgver}.src"
+
+	tar -xf "${sources_dir}/cfe-${pkgver}.src.tar.xz" -C "${build_dir}/${pkgname}-${pkgver}.src/tools" &&
+	tar -xf "${sources_dir}/compiler-rt-${pkgver}.src.tar.xz" -C "${build_dir}/${pkgname}-${pkgver}.src/projects" &&
+
+	mv "${build_dir}/${pkgname}-${pkgver}.src/tools/cfe-${pkgver}.src" tools/clang &&
+	mv "${build_dir}/${pkgname}-${pkgver}.src/projects/compiler-rt-${pkgver}.src" projects/compiler-rt &&
+
+	patch -Np1 -d "${build_dir}/${pkgname}-${pkgver}.src/projects/compiler-rt" < "${sources_dir}/compiler-rt-4.0.1-glibc-2.26-1.patch"	
+
+	mkdir -v build &&
+	cd       build &&
+
+	CC=gcc CXX=g++                              \
+	cmake -DCMAKE_INSTALL_PREFIX=/usr           \
+	      -DLLVM_ENABLE_FFI=ON                  \
+	      -DCMAKE_BUILD_TYPE=Release            \
+	      -DLLVM_BUILD_LLVM_DYLIB=ON            \
+	      -DLLVM_TARGETS_TO_BUILD="host;AMDGPU" \
+	      -Wno-dev ..
+}
+
+lfs_me_build() {
+	cd "${build_dir}/${pkgname}-${pkgver}.src/build"
+	make -j$cores
+}
+
+lfs_me_check() {
+	return
+}
+
+lfs_me_install() {
+	cd "${build_dir}/${pkgname}-${pkgver}.src"
+	make DESTDIR="$fakeroot_dir" install
+}
